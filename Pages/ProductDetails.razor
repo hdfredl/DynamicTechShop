@@ -1,0 +1,56 @@
+﻿@page "/productsdetails/{id:int}"
+@using DynamicTechShop.Database
+@using DynamicTechShop.Model
+@using DynamicTechShop.Service
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@* @using Blazored.LocalStorage.ILocalStorageService localstore *@
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject DynamicTechShop.Service.CartService CartService
+<PageTitle>Products</PageTitle>
+
+@* @inject CartService CartService *@
+
+<h3>Products</h3>
+
+
+@if (product != null) 
+{
+    <div>
+        <p>Product: @product.Name</p>
+        <p>Description: @product.Description</p>
+        <p>Price: @product.Price.ToString() sek</p>
+        <br />
+        <a href="/products" class="btn btn-primary">Go back</a> 
+        <br />
+        <button class="btn btn-success" @onclick="(() => AddToCart(product))">Add to cart</button> @* // @onclick="(() => AddToCart(product))" *@
+
+    </div>
+}
+else
+{
+    <p>No product found</p>
+}
+
+
+@code {
+
+    [Parameter]
+    public int id { get; set; }
+
+    private ProductModel product; 
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        product = StaticList.Productes.FirstOrDefault(p => p.Id == id);
+    }
+
+    private void AddToCart(ProductModel product)
+    {
+        CartService.AddToCart(product);
+        Navigation.NavigateTo("/cart");
+    }
+
+
+}

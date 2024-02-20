@@ -1,0 +1,45 @@
+﻿@page "/cart"
+@using DynamicTechShop.Database
+@using DynamicTechShop.Service
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@inject HttpClient Http
+@inject NavigationManager Navigation
+<PageTitle>Cart</PageTitle>
+
+<h3>Cart</h3>
+
+
+@if (CartService.CartItems.Any())
+{
+    <ul>
+        @foreach (var item in CartService.CartItems)
+        {
+            <li>Name: @item.Name - Price: @item.Price.ToString()</li>
+        }
+    </ul>
+
+    <p>Total Price: @CartService.CalculateTotalPrice().ToString() $</p>     @* Hämta från Cartservice.metoden Caltulate *@
+
+    <button class="btn btn-success" @onclick="(() => CheckoutAndPay())">Go to Payment</button> @* @onclick="(() => CheckoutAndPay(product))" *@
+
+}
+else
+{
+    <p>Your cart is empty</p>
+}
+
+
+
+@code {
+    [Inject]
+    private CartService CartService { get; set; }
+
+
+    private void CheckoutAndPay()
+    {
+        // Skicka med allt som är sparat i CartItems från CartService statiska klass. Sparar allt nu som en sträng och som skickar vidare alla selected Id
+        Navigation.NavigateTo($"/payment/{string.Join(",", CartService.CartItems.Select(item => item.Id))}");
+        // Navigation.NavigateTo("/payment");
+    }
+
+}

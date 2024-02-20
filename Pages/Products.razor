@@ -1,0 +1,77 @@
+﻿@page "/products"
+@* @page "/productsdetails/{id:int}"  *@
+@using DynamicTechShop.Database
+@using DynamicTechShop.Model
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@inject HttpClient Http
+@inject NavigationManager Navigation
+<PageTitle>ProductDetails</PageTitle>
+
+
+<h3>Products </h3>
+
+<input type="text" value="" @oninput="SearchInput" placeholder="Search"/>
+
+@if (filteredProducts.Any())
+{
+	foreach (var product in filteredProducts)
+	{
+		<div>
+			<p>Product: @product.Name</p>
+			<p>Description: @product.Description</p>
+			<p>Price: @product.Price.ToString()</p>
+			<br />
+			<a href="/productsdetails/@product.Id" class="btn btn-primary" @onclick="(() => GoToProducts(product.Id))">View Details</a> @* Skicka med en Id från Model *@
+			<br />
+			<br />
+		</div>
+
+	}
+
+}
+else
+{
+	<p> No products fuonds</p>
+}
+
+@code {
+	[Parameter]
+	public int id { get; set; }
+
+	private string searchTerm = "";
+	private List<ProductModel> filteredProducts;
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		{
+			filteredProducts = StaticList.Productes;
+		}
+	}
+
+	private void SearchInput(ChangeEventArgs search) // Denna gör den dynamisk: ChangeEventArgs <--
+	{
+		searchTerm = search.Value.ToString();
+		Updatelatelist();	
+	}
+
+
+	private  void Updatelatelist()
+	{
+		if (string.IsNullOrWhiteSpace(searchTerm))
+		{ // Alla prodcuts blir filteretProducts
+			filteredProducts = StaticList.Productes;
+		}
+		else
+		{
+			filteredProducts = StaticList.Productes.Where(p => p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+		}
+	}
+
+
+	private void GoToProducts(int productId) // Skicka med här vilken Id som ska med
+	{
+		Navigation.NavigateTo($"/productsdetails/{productId}"); // navigerar hit med Id:en
+	}
+
+}

@@ -1,0 +1,55 @@
+﻿@page "/payment/{cartItemIds}"
+@using DynamicTechShop.Model
+@using DynamicTechShop.Service
+@inject HttpClient Http
+
+<PageTitle>Payment</PageTitle>
+
+<h3>Payment</h3>
+
+@if (string.IsNullOrEmpty(cartItemIds))
+{
+    <p>No items to process payment</p>
+}
+else
+{
+    <p>Article number: @cartItemIds</p>
+
+    @if (cartItems != null && cartItems.Any())
+    {
+        <ul>
+            @foreach (var item in cartItems)
+            {
+                <li>Name: @item.Name - Price: @item.Price.ToString() - Ordered Time: @item.OrderedTime.ToString("yyyy-MM-dd HH:mm")</li>
+                <br />
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No items found for the provided IDs</p>
+    }
+}
+
+
+@code {
+
+    [Parameter]
+    public string cartItemIds { get; set; }
+    private List<ProductModel> cartItems;
+
+    [Inject] // Injecta för att komma åt CartService.
+    private CartService CartService { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // @page "/payment/{cartItemIds}" <- skickar hit alla Ids, så hämtar vi ut det här.
+        if (!string.IsNullOrEmpty(cartItemIds))
+        {
+            var itemIds = cartItemIds.Split(',').Select(int.Parse).ToList();
+            cartItems = CartService.FetchCartItems(itemIds);
+        }
+    }
+
+
+}
